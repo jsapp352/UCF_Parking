@@ -1,29 +1,21 @@
+import datetime
 import googlemaps
 import urllib2
 
-#DEBUG
-import pprint
-
-def get_distance_to_garage(api_key, origin, destination, garage_data):
+def get_distance_to_garage(api_key, origin, destination, garage_keys):
     gmaps = googlemaps.Client(key = api_key)
-
-    garage_keys = garage_data.keys()
 
     garages = ['UCF Parking Garage {0}'.format(name) for name in garage_keys]
 
-    driving_distance_matrix = gmaps.distance_matrix(origin, garages, mode='driving')
-    driving_distances = driving_distance_matrix['rows'][0]['elements']
+    driving_distances = gmaps.distance_matrix(origin, garages, mode='driving')['rows'][0]['elements']
     driving_durations = [x['duration']['value'] for x in driving_distances]
 
-    walking_distance_matrix = gmaps.distance_matrix(garages, destination, mode='walking')
-    walking_distances = walking_distance_matrix['rows']
+    walking_distances = gmaps.distance_matrix(garages, destination, mode='walking')['rows']
     walking_durations = [x['elements'][0]['duration']['value'] for x in walking_distances]
 
-    # driving_distances = [driving_distance_matrix['rows']['elements'][i]['duration']['value']
-    pprint.pprint(driving_durations)
-    pprint.pprint(walking_durations)
+    total_durations = [sum(x) for x in zip(driving_durations, walking_durations)]
 
-    return zip(garage_keys, [sum(x) for x in zip(driving_durations, walking_durations)])
+    return zip(garage_keys, driving_durations, walking_durations, total_durations)
 
 def get_garage_permission(garage_name):
     permit_d = ['A', 'B', 'C', 'D', 'G', 'H', 'I']
@@ -32,19 +24,6 @@ def get_garage_permission(garage_name):
         return 'D'
     else:
         return None
-
-def get_garage_coordinates(garage_name):
-    garage_coords = {
-    'A': (28.600174, -81.205645),
-    'B': (28.597147, -81.200374),
-    'C': (28.602579, -81.195876),
-    'D': (28.605202, -81.197227),
-    'H': (28.605314, -81.201248),
-    'I': (28.601409, -81.204942)
-    }
-
-    # Return the garage coordinated if they are known. Otherwise, return None.
-    return garage_coords.get(garage_name, None)
 
 def get_garage_data(garage_url):
     # Create an empty dictionary to hold garage data
@@ -65,15 +44,11 @@ def get_garage_data(garage_url):
         total_spots = int(search[0].rstrip())
         search = search[2].partition('DataRow_DevEx')[2].partition('Garage ')[2].partition('</td>')
 
-        #DEBUG
-        print('Garage {0}: {1} / {2} spaces free'.format(garage_name, available_spots, total_spots))
-
         # If the garage has open spots, add its data (as nested dict.) to the main garage dictionary
         if get_garage_permission(garage_name) == 'D' and available_spots > 0:
             garage = {
             'available': available_spots,
-            'capacity': total_spots,
-            'coordinates': get_garage_coordinates(garage_name)
+            'capacity': total_spots
             }
 
             garage_data[garage_name] = garage
@@ -90,14 +65,42 @@ def main():
 
     garage_data = get_garage_data(garage_data_url)
 
-    print(garage_data)
-
     origin = '1815 S Semoran Blvd, Orlando, FL 32822'
     destination = 'Harris Corporation Engineering Center, Orlando, FL, 32816'
 
-    garage_distances = get_distance_to_garage(api_key, origin, destination, garage_data)
+    print('Origin: {0}'.format(origin))
+    print('Destination: {0}\n'.format(destination))
 
-    print(garage_distances)
+    garage_distances = get_distance_to_garage(api_key, origin, destination, garage_data.keys())
+
+    # Add travel durations to garage_data dictionary
+    for garage in garage_distances:
+        garage_data[garage[0]]['driving_duration'] = garage[1]
+        garage_data[garage[0]]['walking_duration'] = garage[2]
+        garage_data[garage[0]]['travel_duration'] = garage[1] + garage[2]
+
+    garage_distances.sort(key=lambda tup: tup[3])
+
+    garage = garage_distances[0]
+
+    print('Shortest travel duration:\n')
+
+    print('  Garage {0}\n'.format(garage[0]))
+    print('  Travel time: {0}\n'.format(str(datetime.timedelta(seconds=garage[3]))))
+    print('    Driving time: {0}'.format(str(datetime.timedelta(seconds=garage[1]))))
+    print('    Walking time: {0}\n'.format(str(datetime.timedelta(seconds=garage[2]))))
+    print('  Available spaces: {0} of {1}\n\n'.format(garage_data[garage[0]]['available'],
+    garage_data[garage[0]]['capacity']))
+
+    print('Other garages:\n')
+
+    for garage in garage_distances[1:]:
+        print('  Garage {0}\n'.format(garage[0]))
+        print('  Travel time: {0}\n'.format(str(datetime.timedelta(seconds=garage[3]))))
+        print('    Driving time: {0}'.format(str(datetime.timedelta(seconds=garage[1]))))
+        print('    Walking time: {0}\n'.format(str(datetime.timedelta(seconds=garage[2]))))
+        print('  Available spaces: {0} of {1}\n\n'.format(garage_data[garage[0]]['available'],
+        garage_data[garage[0]]['capacity']))
 
 if __name__ == '__main__':
     main()
