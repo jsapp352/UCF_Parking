@@ -83,18 +83,9 @@ def main():
 
     garage = garage_distances[0]
 
-    print('Shortest travel duration:\n')
+    print('Garages listed by total travel time:\n')
 
-    print('  Garage {0}\n'.format(garage[0]))
-    print('  Travel time: {0}\n'.format(str(datetime.timedelta(seconds=garage[3]))))
-    print('    Driving time: {0}'.format(str(datetime.timedelta(seconds=garage[1]))))
-    print('    Walking time: {0}\n'.format(str(datetime.timedelta(seconds=garage[2]))))
-    print('  Available spaces: {0} of {1}\n\n'.format(garage_data[garage[0]]['available'],
-    garage_data[garage[0]]['capacity']))
-
-    print('Other garages:\n')
-
-    for garage in garage_distances[1:]:
+    for garage in garage_distances:
         print('  Garage {0}\n'.format(garage[0]))
         print('  Travel time: {0}\n'.format(str(datetime.timedelta(seconds=garage[3]))))
         print('    Driving time: {0}'.format(str(datetime.timedelta(seconds=garage[1]))))
