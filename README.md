@@ -10,6 +10,9 @@ The program takes the user's location of origin and a destination on or near UCF
 
 The program's output then shows each available parking garage, sorted by total expected travel time, with detailed parking availability (available spaces and total capacity) as well as detailed expected travel durations (total travel time, driving time, and walking time).
 
+## Google Maps API Key
+A Google Maps API key is needed to execute this program. The key should be stored (on its own) in a file called 'googlemap_key.txt' that is stored in the same directory as the Python code. Distance Matrix and some other services may need to be activated for the key that is being used. The API will show notifications for any services that need to be activated. The key file's name is included in .gitignore so that it won't be posted in a public repository.
+
 ## Caveats
 Since this code was written as a proof-of-concept and as an educational exercise, a number of issues were set aside and would need to be addressed before deploying a finished application:
 - The origin and destination are currently hard-coded. For mobile apps, GPS coordinates could be used instead of a street address. For a web-based app, the user could simply type in their origin location. In both cases, the user would also need a way to specify their destination.
