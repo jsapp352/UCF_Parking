@@ -8,8 +8,10 @@ def get_travel_times(api_key, origin, destination, garage_data):
     garages = ['UCF Parking Garage {0}'.format(name) for name in garage_keys]
 
     # There may be a better way to extract travel durations from the distance matrices
-    driving_distances = gmaps.distance_matrix(origin, garages, mode='driving')['rows'][0]['elements']
-    driving_durations = [x['duration']['value'] for x in driving_distances]
+    driving_distances = gmaps.distance_matrix(origin, garages, mode='driving',
+    departure_time='now')['rows'][0]['elements']
+
+    driving_durations = [x['duration_in_traffic']['value'] for x in driving_distances]
 
     walking_distances = gmaps.distance_matrix(garages, destination, mode='walking')['rows']
     walking_durations = [x['elements'][0]['duration']['value'] for x in walking_distances]
