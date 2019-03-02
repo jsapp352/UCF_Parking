@@ -18,14 +18,14 @@ public class CentralPark
       String API_key_filename = "googlemap_key.txt";
       String building_data_filename = "building_data.json";
 
-      // try
-      // {
-      //    readURL(garageDataURL);
-      // }
-      // catch (Exception e)
-      // {
-      //
-      // }
+      try
+      {
+        ArrayList<Garage> garageList = populateGarageData(garageDataURL);
+      }
+      catch (Exception e)
+      {
+        System.out.println("Could not webscrape UCF Parking Data!");
+      }
 
       File f = new File(API_key_filename);
 
@@ -70,7 +70,7 @@ public class CentralPark
    //   in.close();
    // }
 
-   private static ArrayList<Garage> populateGarageData(String address)
+   private static ArrayList<Garage> populateGarageData(String address) throws Exception
    {
      ArrayList<Garage> garages = new ArrayList<>();
      String inputLine;
@@ -80,11 +80,12 @@ public class CentralPark
 
      while ((inputLine = reader.readLine()) != null)
      {
+
        if (inputLine.contains("<td class=\"dxgv\">"))
        {
          // Get available capacity from UCF website
          String start = "<td class=\"dxgv\">";
-         String end = "</td><td id=\"ctl00_MainContent_gvCounts_tccell5_2\" class=\"dxgv\">";
+         String end = "</td>";
          int startIndex = inputLine.indexOf(start) + start.length();
          int endIndex = inputLine.indexOf(end);
          name = inputLine.substring(startIndex, endIndex);
@@ -93,7 +94,7 @@ public class CentralPark
        {
          // Get garage name from UCF website
          String start = "<td class=\"dxgv\" style=\"border-bottom-width:0px;\">";
-         String end = "</td><td id=\"ctl00_MainContent_gvCounts_tccell6_2\" class=\"dxgv\" style=\"border-bottom-width:0px;\">";
+         String end = "</td>";
          int startIndex = inputLine.indexOf(start) + start.length();
          int endIndex = inputLine.indexOf(end);
          name = inputLine.substring(startIndex, endIndex);
@@ -108,9 +109,8 @@ public class CentralPark
          int available = Integer.parseInt(inputLine.substring(startIndex, endIndex));
 
          // Get total capacity from UCF website
-         inputLine = reader.readLine();
          start = "/";
-         startIndex = inputLine.indexOf(start) + start.length();
+         startIndex = inputLine.lastIndexOf(start) + start.length();
          int capacity = Integer.parseInt(inputLine.substring(startIndex));
 
          // Add to the list of garages
@@ -120,9 +120,4 @@ public class CentralPark
 
      return garages;
   }
-
-   private static void populateGarageData(ArrayList<Garage> garageList)
-   {
-
-   }
 }
