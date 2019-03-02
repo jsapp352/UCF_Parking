@@ -1,4 +1,5 @@
 import java.lang.*;
+import java.net.*;
 import java.util.*;
 import java.io.*;
 
@@ -6,7 +7,19 @@ public class CentralPark
 {
    public static void main(String [] args)
    {
-      File f = new File("googlemap_key.txt");
+      String garageDataURL = "http://secure.parking.ucf.edu/GarageCount/";
+      String API_key_filename = "googlemap_key.txt";
+
+      try
+      {
+         readURL(garageDataURL);
+      }
+      catch (Exception e)
+      {
+
+      }
+
+      File f = new File(API_key_filename);
 
       try
       {
@@ -21,5 +34,16 @@ public class CentralPark
 
 
 
+   }
+
+   static void readURL(String URLString) throws Exception
+   {
+     URL garageDataUrl = new URL(URLString);
+     URLConnection garageData = garageDataUrl.openConnection();
+     BufferedReader in = new BufferedReader(new InputStreamReader(garageData.getInputStream()));
+     String inputLine;
+     while ((inputLine = in.readLine()) != null)
+         System.out.println(inputLine);
+     in.close();
    }
 }
