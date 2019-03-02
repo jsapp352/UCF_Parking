@@ -16,10 +16,13 @@ class Garage
 	Garage(String name)
 	{
 		this.name = name;
-		this.available = 0;
-		this.total = 0;
-		this.walkingDuration = 0;
-		this.drivingDuration = 0;
+	}
+
+	Garage(String name, int available, int total)
+	{
+		this.name = name;
+		this.available = available;
+		this.total = total;
 	}
 
 	public String getName()
