@@ -1,6 +1,9 @@
 # Secure API key
 googlemap_key.txt
 
+# Java files
+*.class
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
