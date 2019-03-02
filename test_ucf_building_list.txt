@@ -1,0 +1,4 @@
+LCC	Libra Community Center (LCC)	33
+FC-A	Live Oak Ballroom/Garden Room (FC-A)	7ab
+LYNX	LYNX/UCF Transit Center (LYNX)	ucf-transit-center
+FC-D	Marketplace Dining Hall (FC-D)	7aa
