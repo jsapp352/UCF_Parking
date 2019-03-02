@@ -3,12 +3,20 @@ import java.net.*;
 import java.util.*;
 import java.io.*;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 public class CentralPark
 {
+   JSONObject buildings;
+
    public static void main(String [] args)
    {
       String garageDataURL = "http://secure.parking.ucf.edu/GarageCount/";
       String API_key_filename = "googlemap_key.txt";
+      String building_data_filename = "building_data.json";
 
       // try
       // {
@@ -34,6 +42,21 @@ public class CentralPark
 
 
 
+   }
+
+   // Parse the building-data JSON file and store it as a member variable
+   private void populateBuildingData(String filename)
+   {
+      JSONPasrser parser = new JSONParser();
+
+      try
+      {
+         buildings = (JSONObject) parser.parse(new FileReader(filename));
+      }
+      catch (Exception e)
+      {
+         System.out.println("Could not parse JSON object from file: " + filename + ".");
+      }
    }
 
    // static ArrayList<int> readURL(String URLString) throws Exception
