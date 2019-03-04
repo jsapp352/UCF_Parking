@@ -1,14 +1,14 @@
 import googlemaps
 import json
 
-import pprint
-
+# Build a list of buildings on UCF campus from a text table that was copy/pasted form UCF website
 def make_building_list(filename):
     with open(filename, 'r') as f:
         building_data = f.readlines()
 
-        buildings = []
+        buildings = {}
 
+        # Parse building data
         for line in building_data:
             building = dict();
 
@@ -22,17 +22,20 @@ def make_building_list(filename):
 
             building['id'] = line[2].strip()
 
-            buildings.append(building);
+            buildings[building['id']] = building
 
         return buildings
 
+# For each building in the list, add walking times from each parking garage using
+# Google Maps API
 def add_garage_walk_times(api_key, buildings, garages):
     gmaps = googlemaps.Client(key = api_key)
 
-    garage_names = [('UCF Parking Garage ' + name) for name in garages]
+    garage_names = [('UCF Parking Garage ' + name + ', Orlando, FL, 32816') for name in garages]
 
-    for building in buildings:
-        walking_distances = gmaps.distance_matrix(garage_names, building['name'], mode='walking')['rows']
+    for k in buildings.keys():
+        building = buildings[k]
+        walking_distances = gmaps.distance_matrix(garage_names, (building['name']+', Orlando, FL, 32816'), mode='walking')['rows']
 
         try:
             walking_durations = [x['elements'][0]['duration']['value'] for x in walking_distances]
@@ -44,10 +47,12 @@ def add_garage_walk_times(api_key, buildings, garages):
 
         garage_walk_durations.sort(key=lambda tup: tup[1])
 
-        building['garage_walk_durations'] = [{'name':g[0], 'walk_duration':g[1]} for g in garage_walk_durations]
+        buildings[k]['garage_walk_durations'] = [{'name':g[0], 'walk_duration':g[1]} for g in garage_walk_durations]
 
     return buildings
 
+# A Google Maps Distance Matrix API key is needed in order to run this script. The key is stored
+# in the text file indicated by "api_key_filename"
 def main():
     api_key_filename = 'googlemap_key.txt'
     building_list_file = 'ucf_building_list.txt'
